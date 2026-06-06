@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MenuBoard NG · by Yann</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,900;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+:root {
+  --cream:      #FAF8F4;
+  --cream2:     #F4F1EC;
+  --white:      #FFFFFF;
+  --navy:       #0D1B2A;
+  --navy2:      #162032;
+  --navy3:      #1E2D40;
+
+  --accent:     #D4622A;
+  --accent2:    #E8834D;
+  --accent-bg:  rgba(212,98,42,0.09);
+  --accent-glow:rgba(212,98,42,0.22);
+
+  --cat-entree:  #FFF0E6;
+  --cat-plat:    #E6F4FF;
+  --cat-dessert: #F0E6FF;
+  --cat-boisson: #E6FFF4;
+  --cat-special: #FFF7E6;
+
+  --sage:    #1DB87B;
+  --sage-bg: rgba(29,184,123,0.1);
+  --rose:    #E5484D;
+  --rose-bg: rgba(229,72,77,0.1);
+  --amber:   #F59E0B;
+  --amber-bg:rgba(245,158,11,0.1);
+
+  --ink:       #1A1208;
+  --ink2:      #4A3F35;
+  --ink3:      #9A8F85;
+  --border:    rgba(26,18,8,0.08);
+
+  --sh-sm: 0 2px 12px rgba(26,18,8,0.07);
+  --sh-md: 0 6px 28px rgba(26,18,8,0.10);
+  --sh-lg: 0 16px 56px rgba(26,18,8,0.13);
+  --sh-accent: 0 8px 28px rgba(212,98,42,0.28);
+
+  --r-sm:  8px;
+  --r-md:  14px;
+  --r-lg:  20px;
+  --r-xl:  28px;
+  --r-2xl: 40px;
+  --r-full:999px;
+
+  --sb-w: 260px;
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--cream);color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;line-height:1.5;min-height:100vh;display:flex;}
+
+/* ══ LOCK SCREEN ══ */
+#lockScreen{
+  position:fixed;inset:0;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--navy);overflow:hidden;
+}
+#lockScreen::before{content:'';position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(212,98,42,0.15) 0%,transparent 65%);top:-150px;left:-150px;pointer-events:none;}
+#lockScreen::after{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(212,98,42,0.08) 0%,transparent 65%);bottom:-80px;right:-80px;pointer-events:none;}
+.lock-wrap{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:400px;padding:0 20px;}
+.lock-brand{text-align:center;margin-bottom:36px;}
+.lock-logo-mark{width:72px;height:72px;border-radius:var(--r-lg);background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 16px;box-shadow:var(--sh-accent);}
+.lock-brand-name{font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:#fff;letter-spacing:-0.5px;line-height:1;}
+.lock-brand-name span{color:var(--accent2);}
+.lock-brand-sub{font-size:0.62rem;letter-spacing:3.5px;text-transform:uppercase;color:rgba(255,255,255,0.25);margin-top:8px;}
+.lock-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:var(--r-xl);padding:30px 26px;width:100%;backdrop-filter:blur(20px);box-shadow:0 30px 70px rgba(0,0,0,0.5);}
+.lock-pin-label{font-size:0.62rem;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:14px;text-align:center;}
+.lock-pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:24px;}
+.pin-dot{width:12px;height:12px;border-radius:50%;border:2px solid rgba(255,255,255,0.15);transition:all 0.22s;}
+.pin-dot.filled{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:var(--accent);box-shadow:0 0 12px var(--accent-glow);transform:scale(1.2);}
+.lock-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.kpad-btn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.07);border-radius:var(--r-md);height:54px;font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:600;color:#fff;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:center;}
+.kpad-btn:hover{background:rgba(212,98,42,0.18);border-color:rgba(212,98,42,0.3);color:var(--accent2);}
+.kpad-btn:active{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;transform:scale(0.94);}
+.kpad-btn.del{color:rgba(255,255,255,0.35);font-size:1rem;font-family:'Plus Jakarta Sans',sans-serif;}
+.kpad-btn.zero{grid-column:2;}
+.lock-error{color:#ff8080;font-size:0.75rem;text-align:center;margin-top:12px;min-height:18px;}
+.lock-actions{display:flex;gap:10px;margin-top:20px;width:100%;}
+.lock-action-btn{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);border-radius:var(--r-md);padding:11px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.76rem;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;}
+.lock-action-btn:hover{background:rgba(212,98,42,0.15);color:var(--accent2);border-color:rgba(212,98,42,0.2);}
+.lock-action-btn.tv{background:linear-gradient(135deg,rgba(212,98,42,0.2),rgba(232,131,77,0.1));border-color:rgba(212,98,42,0.3);color:var(--accent2);}
+.lock-ver{margin-top:20px;font-size:0.58rem;letter-spacing:2.5px;color:rgba(255,255,255,0.1);text-transform:uppercase;text-align:center;}
+
+/* ══ APP SHELL ══ */
+#appShell{display:none;width:100%;min-height:100vh;}
+.app-layout{display:flex;min-height:100vh;}
+
+.sidebar{width:var(--sb-w);min-height:100vh;background:var(--navy);border-radius:0 var(--r-2xl) var(--r-2xl) 0;padding:28px 16px 24px;display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:200;box-shadow:6px 0 32px rgba(13,27,42,0.18);overflow:hidden;}
+.sidebar::before{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(212,98,42,0.08) 0%,transparent 65%);top:-60px;left:-60px;pointer-events:none;}
+.sb-logo{display:flex;align-items:center;gap:10px;padding:0 6px;margin-bottom:26px;position:relative;z-index:1;}
+.sb-logo-mark{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;box-shadow:var(--sh-accent);}
+.sb-logo-txt{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:#fff;letter-spacing:-0.3px;}
+.sb-logo-txt span{color:var(--accent2);}
+.sb-resto-name{background:var(--navy3);border:1px solid rgba(255,255,255,0.06);border-radius:var(--r-md);padding:12px 14px;margin-bottom:20px;position:relative;z-index:1;}
+.sb-resto-label{font-size:0.58rem;text-transform:uppercase;letter-spacing:2px;color:rgba(255,255,255,0.25);margin-bottom:4px;}
+.sb-resto-val{font-family:'Playfair Display',serif;font-size:0.88rem;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sb-nav-label{font-size:0.58rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:0 8px;margin-bottom:5px;position:relative;z-index:1;}
+.sb-nav{display:flex;flex-direction:column;gap:2px;flex:1;position:relative;z-index:1;}
+.sb-btn{width:100%;height:44px;border-radius:var(--r-md);border:none;background:transparent;cursor:pointer;display:flex;align-items:center;gap:10px;padding:0 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.82rem;font-weight:500;color:rgba(255,255,255,0.38);transition:all 0.2s;}
+.sb-btn span.sb-icon{font-size:1.1rem;flex-shrink:0;width:22px;text-align:center;}
+.sb-btn span.sb-label{flex:1;text-align:left;}
+.sb-btn:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.75);}
+.sb-btn.active{background:linear-gradient(135deg,rgba(212,98,42,0.2),rgba(232,131,77,0.08));color:var(--accent2);font-weight:600;border:1px solid rgba(212,98,42,0.22);}
+.sb-btn.tv-btn{background:linear-gradient(135deg,rgba(212,98,42,0.15),rgba(232,131,77,0.05));color:var(--accent2);border:1px solid rgba(212,98,42,0.2);margin-top:6px;}
+.sb-btn.tv-btn:hover{background:linear-gradient(135deg,rgba(212,98,42,0.3),rgba(232,131,77,0.15));color:#fff;}
+.sb-bottom{padding-top:10px;position:relative;z-index:1;}
+.sb-deconnect{width:100%;height:42px;border-radius:var(--r-md);border:1px solid rgba(255,255,255,0.06);background:rgba(255,255,255,0.03);cursor:pointer;display:flex;align-items:center;gap:10px;padding:0 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.8rem;color:rgba(255,255,255,0.25);transition:all 0.2s;}
+.sb-deconnect:hover{background:rgba(229,72,77,0.12);color:#ff7b7b;border-color:rgba(229,72,77,0.25);}
+
+.app-content{margin-left:var(--sb-w);flex:1;display:flex;flex-direction:column;min-height:100vh;}
+.topbar{background:rgba(250,248,244,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 28px;height:62px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh-sm);}
+.tb-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--ink);}
+.tb-right{display:flex;align-items:center;gap:10px;}
+.tb-chip{display:flex;align-items:center;gap:6px;background:var(--cream2);border:1.5px solid var(--border);border-radius:var(--r-full);padding:6px 14px;font-size:0.75rem;font-weight:600;color:var(--ink2);}
+.tb-chip-dot{width:7px;height:7px;border-radius:50%;background:var(--sage);animation:pulse 2s infinite;}
+.tb-icon-btn{width:38px;height:38px;border-radius:var(--r-md);background:var(--cream2);border:1.5px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;transition:all 0.18s;}
+.tb-icon-btn:hover{border-color:var(--accent);background:var(--accent-bg);}
+.tb-user-pill{display:flex;align-items:center;gap:8px;padding:5px 14px 5px 5px;background:var(--cream2);border:1.5px solid var(--border);border-radius:var(--r-full);}
+.tb-user-av{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:0.7rem;font-weight:700;color:#fff;}
+.tb-user-name{font-size:0.78rem;font-weight:600;color:var(--ink);}
+
+.app-main{padding:28px;flex:1;}
+.page{display:none;}
+.page.active{display:block;animation:fadeUp 0.25s ease;}
+.pg-title{font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;margin-bottom:3px;color:var(--ink);}
+.pg-desc{font-size:0.82rem;color:var(--ink3);margin-bottom:24px;}
+.sec-lbl{font-size:0.62rem;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--accent);margin:22px 0 12px;display:flex;align-items:center;gap:10px;}
+.sec-lbl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(212,98,42,0.2),transparent);}
+
+/* DASHBOARD */
+.dash-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;}
+.kpi-card{border-radius:var(--r-lg);padding:20px 18px;position:relative;overflow:hidden;transition:transform 0.22s,box-shadow 0.22s;cursor:pointer;}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--sh-lg);}
+.kpi-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.1);}
+.kpi-card.c-terra{background:linear-gradient(135deg,var(--accent),var(--accent2));box-shadow:var(--sh-accent);}
+.kpi-card.c-navy{background:var(--navy);box-shadow:0 8px 24px rgba(13,27,42,0.25);}
+.kpi-card.c-white{background:var(--white);border:1px solid var(--border);box-shadow:var(--sh-sm);}
+.kpi-card.c-sage{background:linear-gradient(135deg,#1DB87B,#4cceaa);box-shadow:0 8px 24px rgba(29,184,123,0.28);}
+.kpi-icon{font-size:1.4rem;margin-bottom:12px;display:block;}
+.kpi-val{font-family:'Playfair Display',serif;font-size:1.9rem;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-card.c-terra .kpi-val,.kpi-card.c-navy .kpi-val,.kpi-card.c-sage .kpi-val{color:#fff;}
+.kpi-card.c-white .kpi-val{color:var(--ink);}
+.kpi-lbl{font-size:0.66rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.kpi-card.c-terra .kpi-lbl{color:rgba(255,255,255,0.7);}
+.kpi-card.c-navy .kpi-lbl{color:rgba(255,255,255,0.45);}
+.kpi-card.c-sage .kpi-lbl{color:rgba(255,255,255,0.7);}
+.kpi-card.c-white .kpi-lbl{color:var(--ink3);}
+
+/* MENU EDITOR */
+.menu-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap;}
+.cat-filter{display:flex;gap:5px;flex-wrap:wrap;}
+.cat-btn{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-full);padding:6px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.74rem;font-weight:600;cursor:pointer;color:var(--ink2);transition:all 0.15s;}
+.cat-btn:hover{border-color:var(--accent);color:var(--accent);}
+.cat-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.add-plat-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:var(--r-full);padding:9px 20px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.78rem;font-weight:700;cursor:pointer;transition:all 0.18s;box-shadow:var(--sh-accent);display:flex;align-items:center;gap:6px;margin-left:auto;}
+.add-plat-btn:hover{opacity:0.9;transform:translateY(-1px);}
+
+.plats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.plat-card{background:var(--white);border:1.5px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--sh-sm);transition:all 0.22s;position:relative;}
+.plat-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);}
+.plat-card.desactive{opacity:0.5;}
+.plat-card-img{width:100%;height:160px;position:relative;overflow:hidden;background:var(--cream2);display:flex;align-items:center;justify-content:center;}
+.plat-card-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;}
+.plat-card:hover .plat-card-img img{transform:scale(1.04);}
+.plat-emoji-fallback{font-size:3rem;opacity:0.5;}
+.plat-cat-badge{position:absolute;top:10px;right:10px;padding:4px 10px;border-radius:var(--r-full);font-size:0.62rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;}
+.cat-entree .plat-cat-badge{background:var(--cat-entree);color:#c25b00;}
+.cat-plat .plat-cat-badge{background:var(--cat-plat);color:#0057a0;}
+.cat-dessert .plat-cat-badge{background:var(--cat-dessert);color:#6a00a0;}
+.cat-boisson .plat-cat-badge{background:var(--cat-boisson);color:#007a4a;}
+.cat-special .plat-cat-badge{background:var(--cat-special);color:#a06000;}
+.plat-card-body{padding:14px 16px;}
+.plat-card-name{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.plat-card-desc{font-size:0.74rem;color:var(--ink3);line-height:1.5;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.plat-card-footer{display:flex;align-items:center;justify-content:space-between;}
+.plat-price{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--accent);}
+.plat-actions{display:flex;gap:5px;}
+.plat-act-btn{background:var(--cream2);border:1px solid var(--border);border-radius:var(--r-sm);padding:5px 9px;font-size:0.72rem;cursor:pointer;transition:all 0.15s;font-family:'Plus Jakarta Sans',sans-serif;}
+.plat-act-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);}
+.plat-act-btn.toggle-btn{min-width:70px;font-weight:600;}
+.plat-act-btn.toggle-btn.on{background:var(--sage-bg);color:var(--sage);border-color:var(--sage);}
+.plat-act-btn.toggle-btn.off{background:var(--rose-bg);color:var(--rose);border-color:var(--rose);}
+.plat-act-btn.del-btn:hover{border-color:var(--rose);color:var(--rose);background:var(--rose-bg);}
+.plat-act-btn.special-btn.on{background:var(--amber-bg);color:var(--amber);border-color:var(--amber);}
+.plat-empty{padding:56px;text-align:center;color:var(--ink3);font-size:0.86rem;grid-column:1/-1;}
+.plat-empty-icon{font-size:3rem;margin-bottom:12px;}
+
+/* MODALS */
+.modal-ov{position:fixed;inset:0;background:rgba(26,18,8,0.5);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(10px);}
+.modal-ov.open{display:flex;}
+.modal-box{background:var(--white);border-radius:var(--r-xl);width:100%;max-width:540px;overflow:hidden;box-shadow:var(--sh-lg);animation:fadeUp 0.25s ease;border:1px solid var(--border);}
+.modal-hdr{background:var(--navy);padding:18px 22px;display:flex;align-items:center;justify-content:space-between;}
+.modal-hdr-title{font-family:'Playfair Display',serif;font-size:1rem;color:#fff;font-weight:700;}
+.modal-close{background:none;border:none;color:rgba(255,255,255,0.35);font-size:1.2rem;cursor:pointer;transition:color 0.15s;}
+.modal-close:hover{color:#fff;}
+.modal-body{padding:22px;max-height:70vh;overflow-y:auto;}
+.modal-foot{padding:16px 22px;border-top:1px solid var(--border);display:flex;gap:10px;background:var(--cream);}
+.modal-btn{flex:1;border:none;border-radius:var(--r-md);padding:12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;transition:all 0.18s;}
+.modal-btn.accent{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:var(--sh-accent);}
+.modal-btn.secondary{background:var(--cream2);color:var(--ink2);border:1.5px solid var(--border);}
+.modal-btn:active{transform:scale(0.97);}
+.form-group{margin-bottom:14px;}
+.form-label{font-size:0.66rem;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:6px;display:block;}
+.form-input,.form-select,.form-textarea{width:100%;border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.88rem;color:var(--ink);background:var(--cream);outline:none;transition:all 0.15s;}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-bg);}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.photo-upload-zone{border:2.5px dashed var(--border);border-radius:var(--r-lg);padding:24px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--cream);position:relative;overflow:hidden;}
+.photo-upload-zone:hover,.photo-upload-zone.dragover{border-color:var(--accent);background:var(--accent-bg);}
+.photo-upload-zone img.preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:calc(var(--r-lg) - 2px);}
+.photo-upload-zone .upload-placeholder{position:relative;z-index:1;}
+.upload-icon{font-size:2rem;margin-bottom:8px;}
+.upload-text{font-size:0.8rem;font-weight:600;color:var(--ink2);}
+.upload-sub{font-size:0.7rem;color:var(--ink3);margin-top:4px;}
+.upload-remove{position:absolute;top:8px;right:8px;z-index:2;background:rgba(229,72,77,0.85);color:#fff;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:0.8rem;display:none;align-items:center;justify-content:center;}
+.photo-upload-zone.has-image .upload-remove{display:flex;}
+.photo-upload-zone.has-image .upload-placeholder{display:none;}
+.toggle-group{display:flex;align-items:center;gap:10px;padding:10px 0;}
+.toggle-switch{position:relative;width:42px;height:24px;flex-shrink:0;}
+.toggle-switch input{opacity:0;width:0;height:0;}
+.toggle-slider{position:absolute;inset:0;border-radius:var(--r-full);background:var(--border);cursor:pointer;transition:all 0.3s;}
+.toggle-slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;border-radius:50%;background:#fff;transition:all 0.3s;box-shadow:0 1px 3px rgba(0,0,0,0.2);}
+.toggle-switch input:checked+.toggle-slider{background:var(--accent);}
+.toggle-switch input:checked+.toggle-slider::before{transform:translateX(18px);}
+.toggle-lbl{font-size:0.82rem;font-weight:600;color:var(--ink2);}
+
+/* AUTH */
+.auth-pin-wrap{text-align:center;}
+.auth-pin-title{font-size:0.84rem;font-weight:600;color:var(--ink2);margin-bottom:14px;}
+.auth-dots{display:flex;gap:12px;justify-content:center;margin-bottom:18px;}
+.auth-dot{width:13px;height:13px;border-radius:50%;border:2px solid var(--border);transition:all 0.22s;}
+.auth-dot.filled{background:var(--accent);border-color:var(--accent);box-shadow:0 0 10px var(--accent-glow);transform:scale(1.15);}
+.auth-keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:240px;margin:0 auto;}
+.auth-kbtn{background:var(--cream2);border:1.5px solid var(--border);border-radius:var(--r-md);height:46px;font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--ink);cursor:pointer;transition:all 0.12s;display:flex;align-items:center;justify-content:center;}
+.auth-kbtn:hover{background:var(--accent-bg);border-color:var(--accent);}
+.auth-kbtn:active{transform:scale(0.94);}
+.auth-kbtn.del-k{font-family:'Plus Jakarta Sans',sans-serif;font-size:0.9rem;color:var(--ink3);}
+.auth-kbtn.zero-k{grid-column:2;}
+.auth-error{color:var(--rose);font-size:0.74rem;margin-top:12px;text-align:center;min-height:18px;}
+
+/* PARAMÈTRES */
+.params-card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);padding:20px;box-shadow:var(--sh-sm);margin-bottom:16px;}
+.params-card-title{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;margin-bottom:16px;color:var(--ink);display:flex;align-items:center;gap:8px;}
+.color-palette{display:flex;gap:8px;flex-wrap:wrap;}
+.color-swatch{width:36px;height:36px;border-radius:50%;cursor:pointer;transition:all 0.2s;border:3px solid transparent;}
+.color-swatch.selected{border-color:var(--ink);transform:scale(1.15);box-shadow:var(--sh-md);}
+.color-swatch:hover{transform:scale(1.1);}
+.scroll-speed-row{display:flex;gap:8px;}
+.speed-btn{flex:1;background:var(--cream2);border:1.5px solid var(--border);border-radius:var(--r-md);padding:10px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.76rem;font-weight:600;cursor:pointer;color:var(--ink2);text-align:center;transition:all 0.15s;}
+.speed-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.save-params-btn{background:var(--navy);color:#fff;border:none;border-radius:var(--r-md);padding:12px 24px;font-family:'Plus Jakarta Sans',sans-serif;font-size:0.84rem;font-weight:700;cursor:pointer;transition:all 0.18s;box-shadow:0 4px 14px rgba(13,27,42,0.2);}
+.save-params-btn:hover{opacity:0.88;transform:translateY(-1px);}
+
+.toast{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:var(--r-md);font-size:0.8rem;font-weight:600;opacity:0;transform:translateY(12px);transition:all 0.28s cubic-bezier(.22,.68,0,1.2);z-index:9999;pointer-events:none;max-width:320px;border:1px solid rgba(255,255,255,0.08);box-shadow:var(--sh-lg);}
+.toast.show{opacity:1;transform:translateY(0);}
+
+/* ══════════════════════════════════════
+   MODE TV — NOUVEAU SYSTÈME DYNAMIQUE
+══════════════════════════════════════ */
+#tvScreen{
+  display:none;position:fixed;inset:0;z-index:8000;
+  background:#0a0a0a;overflow:hidden;
+  font-family:'Plus Jakarta Sans',sans-serif;
+}
+#tvScreen.active{display:flex;flex-direction:column;}
+
+/* TV Header */
+.tv-header{
+  background:rgba(10,10,10,0.95);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  padding:0 48px;height:72px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;position:relative;z-index:10;
+}
+.tv-header::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+}
+.tv-resto-name{
+  font-family:'Playfair Display',serif;
+  font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:-0.5px;
+}
+.tv-resto-name span{color:var(--accent);}
+.tv-tagline{font-size:0.72rem;color:rgba(255,255,255,0.3);margin-top:2px;font-weight:500;letter-spacing:1px;text-transform:uppercase;}
+.tv-time{
+  font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;
+  color:#fff;letter-spacing:-1px;font-variant-numeric:tabular-nums;text-align:right;
+}
+.tv-date-str{font-size:0.72rem;color:rgba(255,255,255,0.3);text-align:right;margin-top:2px;}
+
+/* ── Batch Stage (zone principale) ── */
+.tv-batch-stage{
+  flex:1;position:relative;overflow:hidden;
+  display:flex;
+}
+
+/* ── Batch : 3 cartes en ligne ── */
+.tv-batch{
+  position:absolute;inset:0;
+  display:flex;align-items:stretch;
+  gap:0;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity 0.8s ease;
+}
+.tv-batch.batch-entering{
+  opacity:0;
+  animation:batchSlideIn 0.8s cubic-bezier(.22,.68,0,1.1) forwards;
+}
+.tv-batch.batch-visible{
+  opacity:1;
+  pointer-events:all;
+}
+.tv-batch.batch-leaving{
+  animation:batchSlideOut 0.6s ease forwards;
+}
+
+@keyframes batchSlideIn{
+  from{opacity:0;transform:translateY(30px);}
+  to{opacity:1;transform:translateY(0);}
+}
+@keyframes batchSlideOut{
+  from{opacity:1;transform:translateY(0);}
+  to{opacity:0;transform:translateY(-20px);}
+}
+
+/* ── Carte individuelle dans le batch ── */
+.tv-card{
+  flex:1;
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  transition:
+    flex 0.65s cubic-bezier(.4,0,.2,1),
+    filter 0.55s ease,
+    opacity 0.55s ease;
+}
+
+/* État : card réduite (en attente) */
+.tv-card.card-idle{
+  flex:1;
+  filter:brightness(0.35) saturate(0.4);
+}
+
+/* État : card en vedette (active) */
+.tv-card.card-spotlight{
+  flex:3.2;
+  filter:brightness(1) saturate(1.1);
+}
+
+/* État : card after-spotlight */
+.tv-card.card-done{
+  flex:0.8;
+  filter:brightness(0.25) saturate(0.3);
+}
+
+/* Image de fond de la carte */
+.tv-card-bg{
+  position:absolute;inset:0;
+  background:#111;
+  overflow:hidden;
+}
+.tv-card-bg img{
+  width:100%;height:100%;object-fit:cover;
+  transform:scale(1.05);
+  transition:transform 8s ease;
+}
+.tv-card.card-spotlight .tv-card-bg img{
+  transform:scale(1.12);
+}
+.tv-card-emoji-bg{
+  width:100%;height:100%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:8rem;opacity:0.15;
+  background:linear-gradient(135deg,#1a1a1a,#2a2a2a);
+}
+
+/* Overlays */
+.tv-card-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(
+    to top,
+    rgba(0,0,0,0.88) 0%,
+    rgba(0,0,0,0.3) 45%,
+    rgba(0,0,0,0.05) 100%
+  );
+  transition:opacity 0.55s ease;
+}
+.tv-card.card-idle .tv-card-overlay{
+  background:linear-gradient(to top,rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.5) 100%);
+}
+
+/* Contenu de la carte (en mode réduit = minimaliste) */
+.tv-card-content{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  justify-content:flex-end;
+  padding:28px 24px;
+  transition:all 0.55s ease;
+}
+
+/* Infos visibles en mode réduit */
+.tv-card-mini{
+  transition:opacity 0.4s ease,transform 0.4s ease;
+}
+.tv-card.card-spotlight .tv-card-mini{
+  opacity:0;pointer-events:none;
+  transform:translateY(8px);
+}
+.tv-card-mini-name{
+  font-family:'Playfair Display',serif;
+  font-size:0.85rem;font-weight:700;color:rgba(255,255,255,0.6);
+  writing-mode:vertical-rl;text-orientation:mixed;
+  transform:rotate(180deg);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-height:160px;
+}
+/* Sur mobile / petits écrans, afficher horizontal */
+@media (max-width: 900px){
+  .tv-card-mini-name{writing-mode:horizontal-tb;transform:none;max-height:none;font-size:0.7rem;}
+}
+
+/* Infos complètes en mode vedette */
+.tv-card-full{
+  opacity:0;transform:translateY(16px);
+  transition:opacity 0.55s ease 0.2s,transform 0.55s ease 0.2s;
+  pointer-events:none;
+}
+.tv-card.card-spotlight .tv-card-full{
+  opacity:1;transform:translateY(0);pointer-events:all;
+}
+
+/* Badge catégorie */
+.tv-card-badge{
+  position:absolute;top:20px;left:20px;
+  padding:5px 14px;border-radius:var(--r-full);
+  background:rgba(255,255,255,0.12);
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,0.18);
+  font-size:0.65rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:rgba(255,255,255,0.85);
+  opacity:0;transition:opacity 0.4s ease 0.3s;
+}
+.tv-card.card-spotlight .tv-card-badge{opacity:1;}
+
+/* Badge "Plat du jour" */
+.tv-card-special{
+  position:absolute;top:20px;right:20px;
+  padding:6px 14px;border-radius:var(--r-full);
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  font-size:0.65rem;font-weight:700;letter-spacing:0.5px;
+  color:#fff;box-shadow:0 4px 14px rgba(212,98,42,0.5);
+  opacity:0;transform:translateY(-6px);
+  transition:opacity 0.4s ease 0.4s,transform 0.4s ease 0.4s;
+}
+.tv-card.card-spotlight .tv-card-special{opacity:1;transform:translateY(0);}
+
+/* Nom du plat (grande taille) */
+.tv-full-name{
+  font-family:'Playfair Display',serif;
+  font-size:2.6rem;font-weight:900;color:#fff;
+  line-height:1.1;margin-bottom:12px;letter-spacing:-1px;
+}
+/* Description */
+.tv-full-desc{
+  font-size:0.9rem;color:rgba(255,255,255,0.6);
+  line-height:1.6;margin-bottom:20px;
+  max-width:420px;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+}
+/* Prix */
+.tv-full-price-row{display:flex;align-items:baseline;gap:10px;}
+.tv-full-price{
+  font-family:'Playfair Display',serif;
+  font-size:2.2rem;font-weight:700;
+  color:var(--accent);letter-spacing:-1px;
+}
+.tv-full-price-lbl{
+  font-size:0.7rem;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;color:rgba(255,255,255,0.35);
+}
+
+/* Séparateur vertical entre cartes */
+.tv-card-divider{
+  position:absolute;top:10%;bottom:10%;right:0;width:1px;
+  background:linear-gradient(to bottom,transparent,rgba(255,255,255,0.06),transparent);
+  pointer-events:none;
+}
+
+/* ── Progress bar sous chaque card ── */
+.tv-card-progress{
+  position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:rgba(255,255,255,0.08);
+  overflow:hidden;
+  opacity:0;transition:opacity 0.3s;
+}
+.tv-card.card-spotlight .tv-card-progress{opacity:1;}
+.tv-card-progress-fill{
+  height:100%;width:0%;
+  background:linear-gradient(90deg,var(--accent),var(--accent2));
+  transition:width linear;
+}
+
+/* ── Indicateur de lot (quelle page) ── */
+.tv-batch-indicator{
+  position:absolute;top:20px;right:24px;
+  display:flex;align-items:center;gap:8px;
+  z-index:5;
+  opacity:0;transition:opacity 0.4s ease 0.5s;
+}
+.tv-batch.batch-visible .tv-batch-indicator{opacity:1;}
+.tv-bi-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,0.2);
+  transition:all 0.35s;
+}
+.tv-bi-dot.on{background:var(--accent);width:18px;border-radius:var(--r-full);}
+
+/* TV Footer */
+.tv-footer{
+  background:rgba(10,10,10,0.95);
+  border-top:1px solid rgba(255,255,255,0.04);
+  padding:0 48px;height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.tv-footer-left{display:flex;align-items:center;gap:12px;}
+.tv-footer-label{font-size:0.66rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,0.2);}
+.tv-slot-dots{display:flex;gap:5px;}
+.tv-slot-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.12);transition:all 0.4s;}
+.tv-slot-dot.active{background:var(--accent);}
+.tv-batch-counter{font-size:0.72rem;color:rgba(255,255,255,0.25);font-weight:600;}
+.tv-exit-btn{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:var(--r-md);padding:7px 16px;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:0.7rem;font-weight:600;
+  cursor:pointer;color:rgba(255,255,255,0.3);transition:all 0.15s;
+}
+.tv-exit-btn:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);}
+
+/* Transition entre lots — rideau */
+.tv-transition-curtain{
+  position:absolute;inset:0;z-index:20;
+  background:var(--navy);
+  opacity:0;pointer-events:none;
+  transition:opacity 0.4s ease;
+}
+.tv-transition-curtain.show{opacity:1;pointer-events:all;}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(212,98,42,0.2);border-radius:var(--r-full);}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+@keyframes shake{0%,100%{transform:translateX(0);}20%,60%{transform:translateX(-5px);}40%,80%{transform:translateX(5px);}}
+.shake{animation:shake 0.4s ease;}
+
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+input[type=number]{-moz-appearance:textfield;}
+</style>
+</head>
+<body>
+
+<!-- ══ LOCK SCREEN ══ -->
+<div id="lockScreen">
+  <div class="lock-wrap">
+    <div class="lock-brand">
+      <div class="lock-logo-mark">🍽️</div>
+      <div class="lock-brand-name">Menu<span>Board</span></div>
+      <div class="lock-brand-sub">by Yann · Digital Menu System</div>
+    </div>
+    <div class="lock-card">
+      <div class="lock-pin-label">Code PIN Admin</div>
+      <div class="lock-pin-dots" id="lockDots"></div>
+      <div class="lock-keypad">
+        <button class="kpad-btn" onclick="lockKey(1)">1</button>
+        <button class="kpad-btn" onclick="lockKey(2)">2</button>
+        <button class="kpad-btn" onclick="lockKey(3)">3</button>
+        <button class="kpad-btn" onclick="lockKey(4)">4</button>
+        <button class="kpad-btn" onclick="lockKey(5)">5</button>
+        <button class="kpad-btn" onclick="lockKey(6)">6</button>
+        <button class="kpad-btn" onclick="lockKey(7)">7</button>
+        <button class="kpad-btn" onclick="lockKey(8)">8</button>
+        <button class="kpad-btn" onclick="lockKey(9)">9</button>
+        <button class="kpad-btn del" onclick="lockDel()">⌫</button>
+        <button class="kpad-btn zero" onclick="lockKey(0)">0</button>
+      </div>
+      <div class="lock-error" id="lockError"></div>
+    </div>
+    <div class="lock-actions">
+      <button class="lock-action-btn tv" onclick="lancerTVDirectement()">📺 Lancer l'affichage TV</button>
+    </div>
+    <div class="lock-ver">MenuBoard-NG v2.0 · Powered by FRAUST Engine</div>
+  </div>
+</div>
+
+<!-- ══ APP SHELL ADMIN ══ -->
+<div id="appShell">
+<div class="app-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <div class="sb-logo-mark">🍽️</div>
+      <div class="sb-logo-txt">Menu<span>Board</span></div>
+    </div>
+    <div class="sb-resto-name">
+      <div class="sb-resto-label">Restaurant</div>
+      <div class="sb-resto-val" id="sbRestoName">Mon Restaurant</div>
+    </div>
+    <div class="sb-nav-label">Navigation</div>
+    <nav class="sb-nav">
+      <button class="sb-btn active" onclick="showPage('dashboard',this)">
+        <span class="sb-icon">📊</span><span class="sb-label">Dashboard</span>
+      </button>
+      <button class="sb-btn" onclick="showPage('menu',this)">
+        <span class="sb-icon">🍽️</span><span class="sb-label">Gérer le menu</span>
+      </button>
+      <button class="sb-btn" onclick="showPage('params',this)">
+        <span class="sb-icon">⚙️</span><span class="sb-label">Paramètres TV</span>
+      </button>
+      <button class="sb-btn tv-btn" onclick="lancerTV()">
+        <span class="sb-icon">📺</span><span class="sb-label">Lancer l'affichage</span>
+      </button>
+    </nav>
+    <div class="sb-bottom">
+      <button class="sb-deconnect" onclick="seDeconnecter()">
+        <span class="sb-icon">🚪</span>
+        <span style="font-family:'Plus Jakarta Sans',sans-serif;font-size:0.8rem;">Déconnexion</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- CONTENT -->
+  <div class="app-content">
+    <header class="topbar">
+      <div class="tb-title" id="tbTitle">Dashboard</div>
+      <div class="tb-right">
+        <div class="tb-chip">
+          <div class="tb-chip-dot"></div>
+          <span id="hClock">--:--</span>
+        </div>
+        <button class="tb-icon-btn" onclick="lancerTV()" title="Lancer TV">📺</button>
+        <div class="tb-user-pill">
+          <div class="tb-user-av">A</div>
+          <span class="tb-user-name">Admin</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <p class="pg-title">Tableau de bord</p>
+        <p class="pg-desc" id="dashDate">Bienvenue dans MenuBoard NG</p>
+        <div class="dash-kpis" id="dashKpis"></div>
+        <div class="sec-lbl">Menu actif aujourd'hui</div>
+        <div class="plats-grid" id="dashMenuActif"></div>
+      </div>
+
+      <!-- MENU EDITOR -->
+      <div class="page" id="page-menu">
+        <p class="pg-title">Gérer le menu</p>
+        <p class="pg-desc">Ajoutez, modifiez et activez vos plats. Les modifications apparaissent instantanément sur la TV.</p>
+        <div class="menu-toolbar">
+          <div class="cat-filter" id="catFilter"></div>
+          <button class="add-plat-btn" onclick="ouvrirModalPlat()">+ Ajouter un plat</button>
+        </div>
+        <div class="plats-grid" id="platsGrid"></div>
+      </div>
+
+      <!-- PARAMÈTRES TV -->
+      <div class="page" id="page-params">
+        <p class="pg-title">Paramètres TV</p>
+        <p class="pg-desc">Configurez l'affichage digital de votre restaurant.</p>
+
+        <div class="params-card">
+          <div class="params-card-title">🏪 Informations du restaurant</div>
+          <div class="form-group">
+            <label class="form-label">Nom du restaurant</label>
+            <input class="form-input" type="text" id="paramRestoName" placeholder="Ex : Restaurant Le Savoureux">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Slogan / Tagline</label>
+            <input class="form-input" type="text" id="paramTagline" placeholder="Ex : Cuisine africaine authentique">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Devise (monnaie)</label>
+            <input class="form-input" type="text" id="paramDevise" placeholder="Ex : FCFA" style="max-width:140px;">
+          </div>
+        </div>
+
+        <div class="params-card">
+          <div class="params-card-title">⏱️ Durée par plat (dans chaque lot de 3)</div>
+          <p style="font-size:0.76rem;color:var(--ink3);margin-bottom:12px;">Chaque plat reste en vedette pendant cette durée avant de passer au suivant.</p>
+          <div class="scroll-speed-row" id="speedRow">
+            <button class="speed-btn" onclick="setSpeed(3000,this)">Rapide<br><small>3 sec</small></button>
+            <button class="speed-btn active" onclick="setSpeed(5000,this)">Normal<br><small>5 sec</small></button>
+            <button class="speed-btn" onclick="setSpeed(8000,this)">Lent<br><small>8 sec</small></button>
+            <button class="speed-btn" onclick="setSpeed(12000,this)">Très lent<br><small>12 sec</small></button>
+          </div>
+        </div>
+
+        <div class="params-card">
+          <div class="params-card-title">🎨 Couleur principale</div>
+          <div class="color-palette" id="colorPalette">
+            <div class="color-swatch selected" style="background:#D4622A;" onclick="setColor('#D4622A',this)" title="Terre cuite"></div>
+            <div class="color-swatch" style="background:#1DB87B;" onclick="setColor('#1DB87B',this)" title="Émeraude"></div>
+            <div class="color-swatch" style="background:#1a6fff;" onclick="setColor('#1a6fff',this)" title="Bleu royal"></div>
+            <div class="color-swatch" style="background:#8e24aa;" onclick="setColor('#8e24aa',this)" title="Violet"></div>
+            <div class="color-swatch" style="background:#e8292e;" onclick="setColor('#e8292e',this)" title="Rouge"></div>
+            <div class="color-swatch" style="background:#0097d8;" onclick="setColor('#0097d8',this)" title="Cyan"></div>
+            <div class="color-swatch" style="background:#F59E0B;" onclick="setColor('#F59E0B',this)" title="Or"></div>
+            <div class="color-swatch" style="background:#0D1B2A;" onclick="setColor('#0D1B2A',this)" title="Navy"></div>
+          </div>
+        </div>
+
+        <div class="params-card">
+          <div class="params-card-title">🔑 Sécurité</div>
+          <div class="form-group">
+            <label class="form-label">Nouveau code PIN admin</label>
+            <input class="form-input" type="number" id="newPinInput" placeholder="4 chiffres minimum" style="max-width:200px;">
+          </div>
+          <p style="font-size:0.76rem;color:var(--ink3);margin-top:-6px;">Laissez vide pour ne pas modifier.</p>
+        </div>
+
+        <button class="save-params-btn" onclick="sauvegarderParams()">💾 Sauvegarder les paramètres</button>
+      </div>
+
+    </main>
+  </div>
+</div>
+</div>
+
+<!-- ══ MODE TV PLEIN ÉCRAN ══ -->
+<div id="tvScreen">
+  <div class="tv-header">
+    <div>
+      <div class="tv-resto-name" id="tvRestoName">Mon <span>Restaurant</span></div>
+      <div class="tv-tagline" id="tvTagline">Cuisine authentique</div>
+    </div>
+    <div>
+      <div class="tv-time" id="tvClock">00:00</div>
+      <div class="tv-date-str" id="tvDate"></div>
+    </div>
+  </div>
+
+  <div class="tv-batch-stage" id="tvBatchStage">
+    <!-- Lots dynamiques injectés ici -->
+    <div class="tv-transition-curtain" id="tvCurtain"></div>
+  </div>
+
+  <div class="tv-footer">
+    <div class="tv-footer-left">
+      <span class="tv-footer-label">Menu</span>
+      <div class="tv-slot-dots" id="tvSlotDots"></div>
+    </div>
+    <div class="tv-batch-counter" id="tvBatchCounter">Lot 1 sur 1</div>
+    <button class="tv-exit-btn" onclick="quitterTV()">✕ Quitter</button>
+  </div>
+</div>
+
+<!-- MODAL AJOUT/EDIT PLAT -->
+<div class="modal-ov" id="modalPlat">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <span class="modal-hdr-title" id="modalPlatTitle">Ajouter un plat</span>
+      <button class="modal-close" onclick="closeModal('modalPlat')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editPlatId">
+      <div class="form-group">
+        <label class="form-label">Photo du plat</label>
+        <div class="photo-upload-zone" id="photoUploadZone" onclick="triggerPhotoUpload()">
+          <img class="preview" id="photoPreview" src="" alt="" style="display:none;">
+          <button class="upload-remove" id="photoRemove" onclick="removePhoto(event)" title="Supprimer">✕</button>
+          <div class="upload-placeholder">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Cliquer pour ajouter une photo</div>
+            <div class="upload-sub">JPG, PNG, WEBP · Max 5 Mo</div>
+          </div>
+        </div>
+        <input type="file" id="photoFile" accept="image/*" style="display:none;" onchange="handlePhotoUpload(this)">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nom du plat *</label>
+        <input class="form-input" type="text" id="platNom" placeholder="Ex : Riz sauce graine">
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Catégorie</label>
+          <select class="form-select" id="platCat">
+            <option value="plat">🍽️ Plat principal</option>
+            <option value="entree">🥗 Entrée</option>
+            <option value="dessert">🍰 Dessert</option>
+            <option value="boisson">🥤 Boisson</option>
+            <option value="special">⭐ Spécial</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prix</label>
+          <input class="form-input" type="number" id="platPrix" placeholder="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="platDesc" placeholder="Décrivez les ingrédients, la préparation..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Emoji (si pas de photo)</label>
+        <input class="form-input" type="text" id="platEmoji" placeholder="🍛" maxlength="4" style="max-width:80px;text-align:center;font-size:1.4rem;">
+      </div>
+      <div class="toggle-group">
+        <label class="toggle-switch">
+          <input type="checkbox" id="platActif" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-lbl">Disponible (affiché sur la TV)</span>
+      </div>
+      <div class="toggle-group">
+        <label class="toggle-switch">
+          <input type="checkbox" id="platSpecial">
+          <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-lbl">⭐ Plat du jour (badge spécial)</span>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="modal-btn secondary" onclick="closeModal('modalPlat')">Annuler</button>
+      <button class="modal-btn accent" onclick="sauvegarderPlat()">✓ Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL AUTH -->
+<div class="modal-ov" id="modalAuth">
+  <div class="modal-box" style="max-width:360px;">
+    <div class="modal-hdr"><span class="modal-hdr-title" id="authTitle">Code admin requis</span><button class="modal-close" onclick="closeModal('modalAuth')">✕</button></div>
+    <div class="modal-body">
+      <div class="auth-pin-wrap">
+        <p class="auth-pin-title" id="authSubtitle">Entrez votre code PIN</p>
+        <div class="auth-dots" id="authDots"></div>
+        <div class="auth-keypad">
+          <button class="auth-kbtn" onclick="authKey(1)">1</button><button class="auth-kbtn" onclick="authKey(2)">2</button><button class="auth-kbtn" onclick="authKey(3)">3</button>
+          <button class="auth-kbtn" onclick="authKey(4)">4</button><button class="auth-kbtn" onclick="authKey(5)">5</button><button class="auth-kbtn" onclick="authKey(6)">6</button>
+          <button class="auth-kbtn" onclick="authKey(7)">7</button><button class="auth-kbtn" onclick="authKey(8)">8</button><button class="auth-kbtn" onclick="authKey(9)">9</button>
+          <button class="auth-kbtn del-k" onclick="authDel()">⌫</button><button class="auth-kbtn zero-k" onclick="authKey(0)">0</button>
+        </div>
+        <div class="auth-error" id="authError"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════════
+function uid(){return Math.random().toString(36).slice(2,9);}
+function escH(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fmtFr(d){return d.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+
+// ══════════════════════════════════════════════════
+// DATA & PARAMS
+// ══════════════════════════════════════════════════
+const PIN_DEFAULT='1234';
+function getPin(){return localStorage.getItem('mb_pin')||PIN_DEFAULT;}
+function setPin(p){localStorage.setItem('mb_pin',p);}
+
+function getParams(){
+  return JSON.parse(localStorage.getItem('mb_params')||'null')||{
+    restoName:'Mon Restaurant',tagline:'Cuisine authentique',
+    devise:'FCFA',speed:5000,color:'#D4622A'
+  };
+}
+function saveParams(p){localStorage.setItem('mb_params',JSON.stringify(p));}
+function getPlats(){return JSON.parse(localStorage.getItem('mb_plats')||'[]');}
+function savePlats(p){localStorage.setItem('mb_plats',JSON.stringify(p));}
+
+let params=getParams();
+let plats=getPlats();
+let currentCatFilter='tous';
+
+// ══════════════════════════════════════════════════
+// LOCK
+// ══════════════════════════════════════════════════
+let lockPin='';
+function renderLockDots(){
+  const l=Math.max(getPin().length,4);
+  document.getElementById('lockDots').innerHTML=Array.from({length:l}).map((_,i)=>`<div class="pin-dot ${i<lockPin.length?'filled':''}"></div>`).join('');
+}
+function lockKey(n){if(lockPin.length>=6)return;lockPin+=n;renderLockDots();if(lockPin.length>=4)setTimeout(tryUnlock,300);}
+function lockDel(){lockPin=lockPin.slice(0,-1);renderLockDots();document.getElementById('lockError').textContent='';}
+function tryUnlock(){
+  if(lockPin===getPin()){ouvrirApp();}
+  else{document.getElementById('lockError').textContent='Code incorrect.';lockPin='';renderLockDots();}
+}
+function ouvrirApp(){
+  document.getElementById('lockScreen').style.display='none';
+  document.getElementById('appShell').style.display='block';
+  applyCouleur(params.color);renderAll();demarrerHorloge();
+}
+function seDeconnecter(){
+  lockPin='';
+  document.getElementById('lockScreen').style.display='flex';
+  document.getElementById('appShell').style.display='none';
+  quitterTV();renderLockDots();
+}
+
+// ══════════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════════
+let authCallback=null,authPin='';
+function demanderAuth(title,subtitle,cb){
+  authCallback=cb;authPin='';
+  document.getElementById('authTitle').textContent=title||'Code admin requis';
+  document.getElementById('authSubtitle').textContent=subtitle||'Entrez votre code PIN';
+  document.getElementById('authError').textContent='';
+  renderAuthDots();openModal('modalAuth');
+}
+function authKey(n){if(authPin.length>=6)return;authPin+=n;renderAuthDots();if(authPin.length>=4)setTimeout(tryAuth,300);}
+function authDel(){authPin=authPin.slice(0,-1);renderAuthDots();document.getElementById('authError').textContent='';}
+function renderAuthDots(){const l=Math.max(getPin().length,4);document.getElementById('authDots').innerHTML=Array.from({length:l}).map((_,i)=>`<div class="auth-dot ${i<authPin.length?'filled':''}"></div>`).join('');}
+function tryAuth(){
+  if(authPin===getPin()){closeModal('modalAuth');if(authCallback)authCallback();authPin='';}
+  else{document.getElementById('authError').textContent='Code incorrect.';const d=document.getElementById('authDots');d.classList.remove('shake');void d.offsetWidth;d.classList.add('shake');authPin='';renderAuthDots();}
+}
+
+// ══════════════════════════════════════════════════
+// COULEUR
+// ══════════════════════════════════════════════════
+function applyCouleur(c){
+  document.documentElement.style.setProperty('--accent',c);
+  document.documentElement.style.setProperty('--accent2',c+'cc');
+  document.documentElement.style.setProperty('--accent-bg',c+'18');
+  document.documentElement.style.setProperty('--accent-glow',c+'40');
+}
+
+// ══════════════════════════════════════════════════
+// RENDER GLOBAL
+// ══════════════════════════════════════════════════
+function renderAll(){
+  params=getParams();applyCouleur(params.color);
+  document.getElementById('sbRestoName').textContent=params.restoName;
+  document.getElementById('paramRestoName').value=params.restoName;
+  document.getElementById('paramTagline').value=params.tagline;
+  document.getElementById('paramDevise').value=params.devise;
+  document.getElementById('tvRestoName').innerHTML=
+    params.restoName.replace(/(\S+)\s*(.*)/, (_,w1,rest)=>`${w1} <span>${rest}</span>`);
+  document.getElementById('tvTagline').textContent=params.tagline;
+  renderDashboard();renderCatFilter();renderPlatsGrid();
+}
+
+// ══════════════════════════════════════════════════
+// DASHBOARD
+// ══════════════════════════════════════════════════
+function renderDashboard(){
+  plats=getPlats();
+  const actifs=plats.filter(p=>p.actif);
+  const speciaux=plats.filter(p=>p.special&&p.actif);
+  const inactifs=plats.filter(p=>!p.actif).length;
+  document.getElementById('dashDate').textContent=fmtFr(new Date());
+  document.getElementById('dashKpis').innerHTML=`
+    <div class="kpi-card c-terra"><span class="kpi-icon">🍽️</span><div class="kpi-val">${plats.length}</div><div class="kpi-lbl">Plats au total</div></div>
+    <div class="kpi-card c-sage"><span class="kpi-icon">✅</span><div class="kpi-val">${actifs.length}</div><div class="kpi-lbl">Disponibles</div></div>
+    <div class="kpi-card c-navy"><span class="kpi-icon">⭐</span><div class="kpi-val">${speciaux.length}</div><div class="kpi-lbl">Plats du jour</div></div>
+    <div class="kpi-card c-white"><span class="kpi-icon">🚫</span><div class="kpi-val">${inactifs}</div><div class="kpi-lbl">Indisponibles</div></div>
+  `;
+  const grid=document.getElementById('dashMenuActif');
+  if(!actifs.length){grid.innerHTML='<div class="plat-empty"><div class="plat-empty-icon">🍽️</div><div>Aucun plat actif</div></div>';return;}
+  grid.innerHTML=actifs.map(p=>buildPlatCard(p,true)).join('');
+}
+
+// ══════════════════════════════════════════════════
+// CATÉGORIES
+// ══════════════════════════════════════════════════
+const CATS={tous:{label:'🍽️ Tous'},plat:{label:'🍽️ Plats'},entree:{label:'🥗 Entrées'},dessert:{label:'🍰 Desserts'},boisson:{label:'🥤 Boissons'},special:{label:'⭐ Spéciaux'}};
+const CAT_LABELS={plat:'Plat principal',entree:'Entrée',dessert:'Dessert',boisson:'Boisson',special:'Spécial'};
+
+function renderCatFilter(){
+  document.getElementById('catFilter').innerHTML=Object.entries(CATS).map(([k,v])=>
+    `<button class="cat-btn ${currentCatFilter===k?'active':''}" onclick="setCatFilter('${k}')">${v.label}</button>`).join('');
+}
+function setCatFilter(cat){currentCatFilter=cat;renderCatFilter();renderPlatsGrid();}
+
+// ══════════════════════════════════════════════════
+// GRILLE PLATS
+// ══════════════════════════════════════════════════
+function renderPlatsGrid(){
+  plats=getPlats();
+  const filtered=currentCatFilter==='tous'?plats:plats.filter(p=>p.cat===currentCatFilter);
+  const g=document.getElementById('platsGrid');
+  if(!filtered.length){g.innerHTML='<div class="plat-empty"><div class="plat-empty-icon">🍽️</div><div style="font-weight:600;">Aucun plat dans cette catégorie</div><div style="margin-top:6px;font-size:0.76rem;">Cliquez sur "+ Ajouter un plat" pour commencer.</div></div>';return;}
+  g.innerHTML=filtered.map(p=>buildPlatCard(p,false)).join('');
+}
+
+function buildPlatCard(p,readOnly){
+  const catCls=`cat-${p.cat||'plat'}`;
+  const catLabel=CAT_LABELS[p.cat]||p.cat;
+  const imgHtml=p.photo?`<img src="${p.photo}" alt="${escH(p.nom)}" loading="lazy">`:`<span class="plat-emoji-fallback">${p.emoji||'🍽️'}</span>`;
+  const badgeSpecial=p.special?`<span style="position:absolute;top:10px;left:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:0.6rem;font-weight:700;padding:4px 10px;border-radius:999px;letter-spacing:0.5px;text-transform:uppercase;">⭐ Plat du jour</span>`:'';
+  const actions=readOnly?'':`
+    <button class="plat-act-btn toggle-btn ${p.actif?'on':'off'}" onclick="toggleActif('${p.id}')">
+      ${p.actif?'✅ Dispo':'🚫 Indispo'}
+    </button>
+    <button class="plat-act-btn special-btn ${p.special?'on':''}" onclick="toggleSpecial('${p.id}')" title="Plat du jour">⭐</button>
+    <button class="plat-act-btn" onclick="ouvrirModalPlat('${p.id}')">✏️</button>
+    <button class="plat-act-btn del-btn" onclick="supprimerPlat('${p.id}')">🗑</button>
+  `;
+  return`<div class="plat-card ${catCls} ${!p.actif?'desactive':''}">
+    <div class="plat-card-img">
+      ${imgHtml}
+      <span class="plat-cat-badge">${catLabel}</span>
+      ${badgeSpecial}
+    </div>
+    <div class="plat-card-body">
+      <div class="plat-card-name">${escH(p.nom)}</div>
+      <div class="plat-card-desc">${escH(p.desc||'')}</div>
+      <div class="plat-card-footer">
+        <div class="plat-price">${p.prix?p.prix.toLocaleString('fr')+' '+params.devise:''}</div>
+        <div class="plat-actions">${actions}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function toggleActif(id){
+  plats=getPlats();const p=plats.find(x=>x.id===id);if(!p)return;
+  p.actif=!p.actif;savePlats(plats);renderPlatsGrid();renderDashboard();
+  showToast(p.actif?`✅ "${p.nom}" activé`:`🚫 "${p.nom}" désactivé`);
+}
+function toggleSpecial(id){
+  plats=getPlats();const p=plats.find(x=>x.id===id);if(!p)return;
+  p.special=!p.special;savePlats(plats);renderPlatsGrid();renderDashboard();
+  showToast(p.special?`⭐ "${p.nom}" → Plat du jour`:`"${p.nom}" retiré du jour`);
+}
+function supprimerPlat(id){
+  const p=plats.find(x=>x.id===id);if(!p)return;
+  demanderAuth('Supprimer un plat',`Confirmez pour supprimer "${p.nom}"`,()=>{
+    plats=getPlats().filter(x=>x.id!==id);savePlats(plats);renderPlatsGrid();renderDashboard();
+    showToast(`🗑 "${p.nom}" supprimé.`);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// MODAL PLAT
+// ══════════════════════════════════════════════════
+let currentPhotoB64='',editPlatIdVal='';
+
+function ouvrirModalPlat(id=''){
+  editPlatIdVal=id;currentPhotoB64='';
+  document.getElementById('photoPreview').style.display='none';
+  document.getElementById('photoPreview').src='';
+  document.getElementById('photoUploadZone').classList.remove('has-image');
+  document.getElementById('modalPlatTitle').textContent=id?'Modifier le plat':'Ajouter un plat';
+  if(id){
+    plats=getPlats();const p=plats.find(x=>x.id===id);if(!p)return;
+    document.getElementById('platNom').value=p.nom||'';
+    document.getElementById('platCat').value=p.cat||'plat';
+    document.getElementById('platPrix').value=p.prix||'';
+    document.getElementById('platDesc').value=p.desc||'';
+    document.getElementById('platEmoji').value=p.emoji||'🍽️';
+    document.getElementById('platActif').checked=!!p.actif;
+    document.getElementById('platSpecial').checked=!!p.special;
+    if(p.photo){currentPhotoB64=p.photo;const img=document.getElementById('photoPreview');img.src=p.photo;img.style.display='block';document.getElementById('photoUploadZone').classList.add('has-image');}
+  }else{
+    document.getElementById('platNom').value='';
+    document.getElementById('platCat').value='plat';
+    document.getElementById('platPrix').value='';
+    document.getElementById('platDesc').value='';
+    document.getElementById('platEmoji').value='🍽️';
+    document.getElementById('platActif').checked=true;
+    document.getElementById('platSpecial').checked=false;
+  }
+  openModal('modalPlat');
+}
+
+function triggerPhotoUpload(){if(document.getElementById('photoUploadZone').classList.contains('has-image'))return;document.getElementById('photoFile').click();}
+function handlePhotoUpload(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>5*1024*1024){showToast('⚠️ Photo trop lourde (max 5 Mo).');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    currentPhotoB64=e.target.result;
+    const img=document.getElementById('photoPreview');img.src=currentPhotoB64;img.style.display='block';
+    document.getElementById('photoUploadZone').classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+}
+function removePhoto(e){
+  e.stopPropagation();currentPhotoB64='';
+  const img=document.getElementById('photoPreview');img.src='';img.style.display='none';
+  document.getElementById('photoUploadZone').classList.remove('has-image');
+  document.getElementById('photoFile').value='';
+}
+
+function sauvegarderPlat(){
+  const nom=document.getElementById('platNom').value.trim();
+  if(!nom){showToast('⚠️ Le nom du plat est obligatoire.');return;}
+  const plat={
+    id:editPlatIdVal||uid(),nom,
+    cat:document.getElementById('platCat').value,
+    prix:parseFloat(document.getElementById('platPrix').value)||0,
+    desc:document.getElementById('platDesc').value.trim(),
+    emoji:document.getElementById('platEmoji').value||'🍽️',
+    actif:document.getElementById('platActif').checked,
+    special:document.getElementById('platSpecial').checked,
+    photo:currentPhotoB64||'',updatedAt:Date.now()
+  };
+  plats=getPlats();
+  if(editPlatIdVal){const i=plats.findIndex(x=>x.id===editPlatIdVal);if(i>=0)plats[i]=plat;else plats.push(plat);}
+  else plats.push(plat);
+  savePlats(plats);closeModal('modalPlat');renderPlatsGrid();renderDashboard();
+  showToast(`✓ "${nom}" sauvegardé !`);
+}
+
+// ══════════════════════════════════════════════════
+// PARAMÈTRES
+// ══════════════════════════════════════════════════
+let currentSpeed=5000,currentColor='#D4622A';
+function setSpeed(ms,btn){currentSpeed=ms;document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function setColor(c,el){currentColor=c;document.querySelectorAll('.color-swatch').forEach(s=>s.classList.remove('selected'));el.classList.add('selected');applyCouleur(c);}
+
+function sauvegarderParams(){
+  const nom=document.getElementById('paramRestoName').value.trim()||'Mon Restaurant';
+  const newPin=document.getElementById('newPinInput').value.trim();
+  if(newPin&&(newPin.length<4||isNaN(newPin))){showToast('⚠️ Code PIN invalide (4 chiffres min).');return;}
+  params={restoName:nom,tagline:document.getElementById('paramTagline').value.trim()||'Cuisine authentique',devise:document.getElementById('paramDevise').value.trim()||'FCFA',speed:currentSpeed,color:currentColor};
+  saveParams(params);if(newPin)setPin(newPin);
+  renderAll();showToast('✓ Paramètres sauvegardés !');
+}
+
+// ══════════════════════════════════════════════════
+// ██████  MODE TV — SYSTÈME DE LOTS DYNAMIQUE  ██████
+// Fonctionnement :
+//   - Les plats actifs sont divisés en lots de 3
+//   - Dans chaque lot, chaque plat passe en "vedette" à tour de rôle
+//   - Le plat vedette occupe ~70% de la largeur, les autres sont floutés
+//   - Une barre de progression indique le temps restant par plat
+//   - Après que les 3 plats du lot ont été vedette, on passe au lot suivant
+// ══════════════════════════════════════════════════
+let tvBatches=[];        // Tableau de lots [ [plat,plat,plat], ... ]
+let tvCurrentBatch=0;   // Index du lot affiché
+let tvCurrentCard=0;    // Index de la carte vedette dans le lot courant
+let tvRunning=false;
+let tvSpotlightTimer=null;
+let tvProgressAnim=null;
+let tvClockInterval=null;
+
+function lancerTV(){
+  plats=getPlats();
+  const actifs=plats.filter(p=>p.actif);
+  if(!actifs.length){showToast('⚠️ Aucun plat actif à afficher. Activez des plats d\'abord.');return;}
+  demarrerTV(actifs);
+}
+function lancerTVDirectement(){
+  plats=getPlats();
+  const actifs=plats.filter(p=>p.actif);
+  if(!actifs.length){showToast('⚠️ Aucun plat actif à afficher.');return;}
+  demarrerTV(actifs);
+}
+
+function demarrerTV(actifs){
+  params=getParams();
+  const speed=params.speed||5000;
+
+  // Construire les lots de 3
+  tvBatches=[];
+  for(let i=0;i<actifs.length;i+=3){
+    tvBatches.push(actifs.slice(i,i+3));
+  }
+  tvCurrentBatch=0;tvCurrentCard=0;tvRunning=true;
+
+  document.getElementById('tvScreen').classList.add('active');
+
+  // Mettre à jour header
+  document.getElementById('tvRestoName').innerHTML=
+    params.restoName.replace(/(\S+)\s*(.*)/, (_,w1,rest)=>`${w1} <span>${rest}</span>`);
+  document.getElementById('tvTagline').textContent=params.tagline;
+
+  // Dots de lots
+  renderLotDots();
+
+  // Horloge TV
+  updateTvTime();
+  if(tvClockInterval)clearInterval(tvClockInterval);
+  tvClockInterval=setInterval(updateTvTime,1000);
+
+  // Afficher le premier lot
+  afficherBatch(0,0);
+}
+
+function quitterTV(){
+  document.getElementById('tvScreen').classList.remove('active');
+  tvRunning=false;
+  if(tvSpotlightTimer)clearTimeout(tvSpotlightTimer);
+  if(tvProgressAnim)clearInterval(tvProgressAnim);
+  if(tvClockInterval)clearInterval(tvClockInterval);
+  // Nettoyer le stage
+  const stage=document.getElementById('tvBatchStage');
+  const old=stage.querySelectorAll('.tv-batch');
+  old.forEach(b=>b.remove());
+}
+
+function renderLotDots(){
+  const dots=document.getElementById('tvSlotDots');
+  dots.innerHTML=tvBatches.map((_,i)=>`<div class="tv-slot-dot ${i===tvCurrentBatch?'active':''}" id="lot-dot-${i}"></div>`).join('');
+}
+
+function updateLotDots(batchIdx){
+  document.querySelectorAll('.tv-slot-dot').forEach((d,i)=>d.classList.toggle('active',i===batchIdx));
+  document.getElementById('tvBatchCounter').textContent=`Lot ${batchIdx+1} sur ${tvBatches.length}`;
+}
+
+// ── Afficher un lot (avec animation d'entrée) ──
+function afficherBatch(batchIdx,cardIdx){
+  if(!tvRunning)return;
+  tvCurrentBatch=batchIdx;tvCurrentCard=cardIdx;
+
+  const stage=document.getElementById('tvBatchStage');
+  const speed=params.speed||5000;
+
+  // Supprimer l'ancien batch
+  const old=stage.querySelectorAll('.tv-batch');
+  old.forEach(b=>b.remove());
+
+  const lot=tvBatches[batchIdx];
+  if(!lot)return;
+
+  // Créer le nouveau batch DOM
+  const batch=document.createElement('div');
+  batch.className='tv-batch batch-entering';
+  batch.id='tv-current-batch';
+
+  // Indicateur de batch (mini dots)
+  const biDots=tvBatches.map((_,i)=>`<div class="tv-bi-dot ${i===batchIdx?'on':''}" ></div>`).join('');
+  const indicator=document.createElement('div');
+  indicator.className='tv-batch-indicator';
+  indicator.innerHTML=biDots;
+  batch.appendChild(indicator);
+
+  // Cartes
+  lot.forEach((plat,idx)=>{
+    const card=document.createElement('div');
+    card.className='tv-card card-idle';
+    card.id=`tv-card-${idx}`;
+
+    // BG image
+    const bgDiv=document.createElement('div');
+    bgDiv.className='tv-card-bg';
+    if(plat.photo){
+      const img=document.createElement('img');
+      img.src=plat.photo;img.alt=plat.nom;
+      bgDiv.appendChild(img);
+    }else{
+      const em=document.createElement('div');
+      em.className='tv-card-emoji-bg';
+      em.textContent=plat.emoji||'🍽️';
+      bgDiv.appendChild(em);
+    }
+    card.appendChild(bgDiv);
+
+    // Overlay
+    const ov=document.createElement('div');ov.className='tv-card-overlay';card.appendChild(ov);
+
+    // Badge catégorie
+    const badge=document.createElement('div');
+    badge.className='tv-card-badge';
+    badge.textContent=CAT_LABELS[plat.cat]||plat.cat||'';
+    card.appendChild(badge);
+
+    // Badge "Plat du jour"
+    if(plat.special){
+      const sp=document.createElement('div');
+      sp.className='tv-card-special';sp.textContent='⭐ Plat du jour';
+      card.appendChild(sp);
+    }
+
+    // Séparateur
+    const div=document.createElement('div');div.className='tv-card-divider';card.appendChild(div);
+
+    // Contenu
+    const content=document.createElement('div');content.className='tv-card-content';
+
+    // Mode réduit : nom vertical
+    const mini=document.createElement('div');mini.className='tv-card-mini';
+    const miniName=document.createElement('div');miniName.className='tv-card-mini-name';
+    miniName.textContent=plat.nom;
+    mini.appendChild(miniName);content.appendChild(mini);
+
+    // Mode vedette : infos complètes
+    const full=document.createElement('div');full.className='tv-card-full';
+    full.innerHTML=`
+      <div class="tv-full-name">${escH(plat.nom)}</div>
+      <div class="tv-full-desc">${escH(plat.desc||'')}</div>
+      <div class="tv-full-price-row">
+        <div class="tv-full-price">${plat.prix?plat.prix.toLocaleString('fr')+' '+params.devise:''}</div>
+        <div class="tv-full-price-lbl">Prix</div>
+      </div>
+    `;
+    content.appendChild(full);
+    card.appendChild(content);
+
+    // Barre de progression
+    const prog=document.createElement('div');prog.className='tv-card-progress';
+    const fill=document.createElement('div');fill.className='tv-card-progress-fill';fill.id=`tv-prog-${idx}`;
+    prog.appendChild(fill);card.appendChild(prog);
+
+    // Clic → passer au suivant
+    card.addEventListener('click',()=>{
+      if(!tvRunning)return;
+      avancerSpotlight();
+    });
+
+    batch.appendChild(card);
+  });
+
+  stage.appendChild(batch);
+
+  // Après animation d'entrée → visible
+  setTimeout(()=>{
+    batch.classList.remove('batch-entering');
+    batch.classList.add('batch-visible');
+    updateLotDots(batchIdx);
+    // Mettre en vedette la première carte
+    spotlightCard(cardIdx,true);
+  },100);
+}
+
+// ── Mettre une carte en vedette ──
+function spotlightCard(cardIdx,isFirst=false){
+  if(!tvRunning)return;
+  tvCurrentCard=cardIdx;
+  const speed=params.speed||5000;
+  const lot=tvBatches[tvCurrentBatch];
+  if(!lot)return;
+
+  // Mettre à jour les classes
+  lot.forEach((_,i)=>{
+    const card=document.getElementById(`tv-card-${i}`);
+    if(!card)return;
+    if(i<cardIdx){card.className='tv-card card-done';}
+    else if(i===cardIdx){card.className='tv-card card-spotlight';}
+    else{card.className='tv-card card-idle';}
+  });
+
+  // Barre de progression
+  if(tvProgressAnim)clearInterval(tvProgressAnim);
+  const fill=document.getElementById(`tv-prog-${cardIdx}`);
+  if(fill){
+    fill.style.transition='none';fill.style.width='0%';
+    setTimeout(()=>{
+      fill.style.transition=`width ${speed}ms linear`;
+      fill.style.width='100%';
+    },80);
+  }
+
+  // Timer pour passer au suivant
+  if(tvSpotlightTimer)clearTimeout(tvSpotlightTimer);
+  tvSpotlightTimer=setTimeout(()=>avancerSpotlight(),speed);
+}
+
+// ── Avancer au prochain plat / lot ──
+function avancerSpotlight(){
+  if(!tvRunning)return;
+  const lot=tvBatches[tvCurrentBatch];
+  if(!lot)return;
+
+  const nextCard=tvCurrentCard+1;
+
+  if(nextCard<lot.length){
+    // Encore des cartes dans ce lot
+    spotlightCard(nextCard);
+  }else{
+    // Fin du lot → passer au lot suivant
+    const nextBatch=(tvCurrentBatch+1)%tvBatches.length;
+    changerBatch(nextBatch);
+  }
+}
+
+// ── Changer de lot (avec rideau) ──
+function changerBatch(nextBatchIdx){
+  if(!tvRunning)return;
+  const curtain=document.getElementById('tvCurtain');
+
+  // Fermer le rideau
+  curtain.classList.add('show');
+  if(tvSpotlightTimer)clearTimeout(tvSpotlightTimer);
+
+  setTimeout(()=>{
+    afficherBatch(nextBatchIdx,0);
+    setTimeout(()=>{
+      curtain.classList.remove('show');
+    },200);
+  },400);
+}
+
+// ── Horloge TV ──
+function updateTvTime(){
+  const now=new Date();
+  const h=String(now.getHours()).padStart(2,'0'),m=String(now.getMinutes()).padStart(2,'0');
+  const c=document.getElementById('tvClock');if(c)c.textContent=`${h}:${m}`;
+  const d=document.getElementById('tvDate');if(d)d.textContent=fmtFr(now);
+}
+
+// Touche Echap
+document.addEventListener('keydown',e=>{if(e.key==='Escape')quitterTV();});
+
+// ══════════════════════════════════════════════════
+// NAVIGATION ADMIN
+// ══════════════════════════════════════════════════
+const PAGE_TITLES={'dashboard':'Tableau de bord','menu':'Gérer le menu','params':'Paramètres TV'};
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  if(btn)btn.classList.add('active');
+  document.getElementById('tbTitle').textContent=PAGE_TITLES[name]||name;
+  if(name==='menu'){plats=getPlats();renderCatFilter();renderPlatsGrid();}
+  if(name==='dashboard')renderDashboard();
+}
+
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-ov').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open');}));
+
+let toastT;
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
+
+let clockI;
+function demarrerHorloge(){
+  if(clockI)clearInterval(clockI);
+  clockI=setInterval(()=>{const now=new Date(),h=String(now.getHours()).padStart(2,'0'),m=String(now.getMinutes()).padStart(2,'0'),s=String(now.getSeconds()).padStart(2,'0');const c=document.getElementById('hClock');if(c)c.textContent=`${h}:${m}:${s}`;},1000);
+}
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+renderLockDots();
+currentColor=params.color;currentSpeed=params.speed||5000;
+document.getElementById('paramRestoName').value=params.restoName;
+document.getElementById('paramTagline').value=params.tagline;
+document.getElementById('paramDevise').value=params.devise;
+</script>
+</body>
+</html>
